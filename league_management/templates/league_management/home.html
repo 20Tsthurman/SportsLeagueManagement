@@ -1,0 +1,51 @@
+{% extends 'league_management/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Welcome to Sports League Management System</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Leagues</h5>
+                <p class="card-text">View and manage all sports leagues.</p>
+                <a href="{% url 'league_management:league-list' %}" class="btn btn-primary">View Leagues</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Teams</h5>
+                <p class="card-text">Manage teams and their rosters.</p>
+                <a href="{% url 'league_management:team-list' %}" class="btn btn-primary">View Teams</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Players</h5>
+                <p class="card-text">View and manage player information.</p>
+                <a href="{% url 'league_management:player-list' %}" class="btn btn-primary">View Players</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Matches</h5>
+                <p class="card-text">Schedule and view match details.</p>
+                <a href="{% url 'league_management:match-list' %}" class="btn btn-primary">View Matches</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

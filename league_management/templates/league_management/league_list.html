@@ -1,0 +1,27 @@
+{% extends 'league_management/base.html' %}
+
+{% block content %}
+<h1>Leagues</h1>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Sport Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for league in leagues %}
+            <tr>
+                <td>{{ league.name }}</td>
+                <td>{{ league.sport_type }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No leagues available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
