@@ -1,0 +1,47 @@
+{% extends 'league_management/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Team</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="{{ form.name.id_for_label }}" class="form-label">Team Name</label>
+            {{ form.name }}
+            {% if form.name.errors %}
+            <div class="alert alert-danger">{{ form.name.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.home_city.id_for_label }}" class="form-label">Home City</label>
+            {{ form.home_city }}
+            {% if form.home_city.errors %}
+            <div class="alert alert-danger">{{ form.home_city.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.founded_year.id_for_label }}" class="form-label">Founded Year</label>
+            {{ form.founded_year }}
+            {% if form.founded_year.errors %}
+            <div class="alert alert-danger">{{ form.founded_year.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.coach.id_for_label }}" class="form-label">Coach</label>
+            {{ form.coach }}
+            {% if form.coach.errors %}
+            <div class="alert alert-danger">{{ form.coach.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.division.id_for_label }}" class="form-label">Division</label>
+            {{ form.division }}
+            {% if form.division.errors %}
+            <div class="alert alert-danger">{{ form.division.errors }}</div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{% url 'league_management:team-list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

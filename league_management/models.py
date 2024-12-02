@@ -45,14 +45,25 @@ class Player(models.Model):
         return f"{self.fname} {self.lname}"
 
 class Match(models.Model):
-    date = models.DateField()
-    time = models.TimeField()
-    status = models.CharField(max_length=50)
-    season = models.ForeignKey(Season, on_delete=models.CASCADE, related_name='matches')
-    teams = models.ManyToManyField(Team, through='TeamMatch')
+    STATUS_CHOICES = [
+        ('Scheduled', 'Scheduled'),
+        ('In Progress', 'In Progress'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
+    ]
+    
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='Scheduled'
+    )
+    date = models.DateField()  # Add this field
+    time = models.TimeField()  # Add this field
+    season = models.ForeignKey(Season, on_delete=models.CASCADE)  # Add this field
 
     def __str__(self):
-        return f"Match on {self.date}"
+        return f"{self.status} on {self.date} at {self.time}"
+
 
 class PlaysFor(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)

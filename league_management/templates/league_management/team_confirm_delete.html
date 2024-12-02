@@ -1,0 +1,13 @@
+{% extends 'league_management/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Delete League</h2>
+    <form method="post">
+        {% csrf_token %}
+        <p>Are you sure you want to delete "{{ object.name }}"?</p>
+        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+        <a href="{% url 'league_management:league-list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
