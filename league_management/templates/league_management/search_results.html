@@ -1,0 +1,79 @@
+{% extends 'league_management/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Search Results for "{{ query }}"</h2>
+    
+    {% if teams or players %}
+        {% if teams %}
+            <h3 class="mt-4">Teams</h3>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Home City</th>
+                            <th>Coach</th>
+                            <th>Division</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for team in teams %}
+                        <tr>
+                            <td>{{ team.name }}</td>
+                            <td>{{ team.home_city }}</td>
+                            <td>{{ team.coach }}</td>
+                            <td>{{ team.division.name }}</td>
+                            <td>
+                                <a href="{% url 'league_management:team-update' team.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                                <a href="{% url 'league_management:team-delete' team.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        {% if players %}
+            <h3 class="mt-4">Players</h3>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Jersey Number</th>
+                            <th>Team</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in players %}
+                        <tr>
+                            <td>{{ player.fname }} {{ player.lname }}</td>
+                            <td>{{ player.position }}</td>
+                            <td>{{ player.jersey_number }}</td>
+                            <td>
+                                {% for team in player.team.all %}
+                                    {{ team.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <a href="{% url 'league_management:player-update' player.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                                <a href="{% url 'league_management:player-delete' player.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info mt-4">
+            No results found for your search query.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

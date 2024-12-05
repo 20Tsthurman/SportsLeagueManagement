@@ -23,6 +23,9 @@ class Season(models.Model):
     def __str__(self):
         return f"{self.year} Season"
 
+    class Meta:
+        ordering = ['-year']
+
 class Team(models.Model):
     name = models.CharField(max_length=100)
     home_city = models.CharField(max_length=100)
@@ -52,17 +55,44 @@ class Match(models.Model):
         ('Cancelled', 'Cancelled'),
     ]
     
+    date = models.DateField()
+    time = models.TimeField()
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default='Scheduled'
     )
-    date = models.DateField()  # Add this field
-    time = models.TimeField()  # Add this field
-    season = models.ForeignKey(Season, on_delete=models.CASCADE)  # Add this field
+    season = models.ForeignKey(Season, on_delete=models.CASCADE)
+    teams = models.ManyToManyField(Team, through='TeamMatch')
 
     def __str__(self):
-        return f"{self.status} on {self.date} at {self.time}"
+        home_team = self.teammatch_set.filter(is_home_team=True).first()
+        away_team = self.teammatch_set.filter(is_home_team=False).first()
+        if home_team and away_team:
+            return f"{home_team.team.name} vs {away_team.team.name} - {self.date}"
+        return f"Match on {self.date}"
+
+    def get_home_team(self):
+        return self.teammatch_set.filter(is_home_team=True).first()
+
+    def get_away_team(self):
+        return self.teammatch_set.filter(is_home_team=False).first()
+
+    def get_score_display(self):
+        home_team = self.get_home_team()
+        away_team = self.get_away_team()
+        if home_team and away_team and home_team.score is not None and away_team.score is not None:
+            return f"{home_team.team.name} {home_team.score} - {away_team.score} {away_team.team.name}"
+        return "Score not available"
+
+class TeamMatch(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    is_home_team = models.BooleanField()
+    score = models.IntegerField(null=True, blank=True)
+    
+    class Meta:
+        unique_together = ('team', 'match')
 
 
 class PlaysFor(models.Model):
@@ -73,12 +103,3 @@ class PlaysFor(models.Model):
 
     class Meta:
         unique_together = ('player', 'team')
-
-class TeamMatch(models.Model):
-    team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    match = models.ForeignKey(Match, on_delete=models.CASCADE)
-    is_home_team = models.BooleanField()
-    score = models.IntegerField(null=True, blank=True)
-
-    class Meta:
-        unique_together = ('team', 'match')

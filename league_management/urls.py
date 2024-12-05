@@ -5,6 +5,7 @@ app_name = 'league_management'
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('search/', views.search_results, name='search'),
     
     # League URLs
     path('leagues/', views.LeagueListView.as_view(), name='league-list'),
@@ -30,4 +31,10 @@ urlpatterns = [
     path('matches/<int:pk>/edit/', views.MatchUpdateView.as_view(), name='match-update'),
     path('matches/<int:pk>/delete/', views.MatchDeleteView.as_view(), name='match-delete'),
     path('standings/', views.LeagueStandingsView.as_view(), name='standings'),
+
+    #Divisions
+    path('divisions/', views.DivisionListView.as_view(), name='division-list'),
+    path('divisions/add/', views.DivisionCreateView.as_view(), name='division-create'),
+    path('divisions/<int:pk>/edit/', views.DivisionUpdateView.as_view(), name='division-update'),
+    path('divisions/<int:pk>/delete/', views.DivisionDeleteView.as_view(), name='division-delete'),
 ]

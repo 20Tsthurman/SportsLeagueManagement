@@ -1,55 +1,73 @@
 {% extends 'league_management/base.html' %}
-
 {% block content %}
+
 <div class="container mt-4">
-    <h2 class="mb-4">League Standings</h2>
-    
-    {% for division_name, standings in standings_by_division.items %}
-    <div class="card mb-4">
-        <div class="card-header">
-            <h3 class="h5 mb-0">{{ division_name }}</h3>
+    <h2 class="mb-4">League Standings {% if current_season %}- {{ current_season.year }} Season{% endif %}</h2>
+
+    {% if no_season %}
+        <div class="alert alert-warning">
+            No seasons have been created yet. Please create a season first.
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Position</th>
-                            <th>Team</th>
-                            <th>Played</th>
-                            <th>Won</th>
-                            <th>Lost</th>
-                            <th>Points</th>
-                            <th>Win %</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for team in standings %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>
-                                <a href="{% url 'league_management:team-list' %}?team={{ team.team.id }}">
-                                    {{ team.team.name }}
-                                </a>
-                            </td>
-                            <td>{{ team.matches_played }}</td>
-                            <td>{{ team.wins }}</td>
-                            <td>{{ team.losses }}</td>
-                            <td><strong>{{ team.points }}</strong></td>
-                            <td>{{ team.win_percentage }}%</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center">No teams in this division yet.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    {% elif not standings_by_league %}
+        <div class="alert alert-info">
+            No standings available yet. Make sure you have divisions with teams and completed matches.
+        </div>
+    {% else %}
+        {% for league_name, league_data in standings_by_league.items %}
+            <div class="card mb-5">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h4 mb-0">{{ league_name }} ({{ league_data.sport_type }})</h3>
+                </div>
+                
+                {% for division_name, standings in league_data.standings.items %}
+                    <div class="card-body">
+                        <h4 class="h5 mb-3">{{ division_name }}</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Pos</th>
+                                        <th>Team</th>
+                                        <th>P</th>
+                                        <th>W</th>
+                                        <th>D</th>
+                                        <th>L</th>
+                                        <th>GF</th>
+                                        <th>GA</th>
+                                        <th>GD</th>
+                                        <th>Pts</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for team in standings %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ team.team.name }}</td>
+                                            <td>{{ team.matches_played }}</td>
+                                            <td>{{ team.wins }}</td>
+                                            <td>{{ team.draws }}</td>
+                                            <td>{{ team.losses }}</td>
+                                            <td>{{ team.goals_for }}</td>
+                                            <td>{{ team.goals_against }}</td>
+                                            <td>{{ team.goal_difference }}</td>
+                                            <td><strong>{{ team.points }}</strong></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
+        {% endfor %}
+
+        <div class="mt-3">
+            <small class="text-muted">
+                <strong>Legend:</strong> Pos = Position, P = Played, W = Won, D = Drawn, L = Lost, 
+                GF = Goals For, GA = Goals Against, GD = Goal Difference, Pts = Points
+            </small>
         </div>
-    </div>
-    {% empty %}
-    <div class="alert alert-info">No divisions found.</div>
-    {% endfor %}
+    {% endif %}
 </div>
+
 {% endblock %}

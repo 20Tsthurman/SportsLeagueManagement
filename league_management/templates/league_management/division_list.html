@@ -1,0 +1,52 @@
+{% extends 'league_management/base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Divisions</h2>
+        <a href="{% url 'league_management:division-create' %}" class="btn btn-primary">Add New Division</a>
+    </div>
+
+    {% if divisions_by_league %}
+        {% for league, divisions in divisions_by_league.items %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0">{{ league.name }} - {{ league.sport_type }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Division Name</th>
+                                    <th>Level</th>
+                                    <th>Number of Teams</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for division in divisions %}
+                                    <tr>
+                                        <td>{{ division.name }}</td>
+                                        <td>{{ division.level }}</td>
+                                        <td>{{ division.teams.count }}</td>
+                                        <td>
+                                            <a href="{% url 'league_management:division-update' division.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                                            <a href="{% url 'league_management:division-delete' division.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            No divisions available. Please add a division.
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,18 +1,19 @@
 {% extends 'league_management/base.html' %}
-
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Matches</h2>
         <a href="{% url 'league_management:match-create' %}" class="btn btn-primary">Add New Match</a>
     </div>
+
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Time</th>
-                    <th>Teams</th>
+                    <th>Match</th>
+                    <th>Result</th>
                     <th>Status</th>
                     <th>Season</th>
                     <th>Actions</th>
@@ -24,15 +25,33 @@
                     <td>{{ match.date }}</td>
                     <td>{{ match.time }}</td>
                     <td>
-                        {% for team_match in match.teammatch_set.all %}
-                            {{ team_match.team.name }}
-                            {% if team_match.score is not None %}
-                                ({{ team_match.score }})
+                        {% with home_team=match.teammatch_set.filter.first away_team=match.teammatch_set.filter.last %}
+                            {% if home_team and away_team %}
+                                {{ home_team.team.name }} vs {{ away_team.team.name }}
+                            {% else %}
+                                Teams not set
                             {% endif %}
-                            {% if not forloop.last %} vs {% endif %}
-                        {% endfor %}
+                        {% endwith %}
                     </td>
-                    <td>{{ match.status }}</td>
+                    <td>
+                        {% if match.status == 'Completed' %}
+                            {% with home_match=match.teammatch_set.filter.first away_match=match.teammatch_set.filter.last %}
+                                {% if home_match and away_match %}
+                                    {{ home_match.team.name }}: {{ home_match.score|default:"-" }} - 
+                                    {{ away_match.team.name }}: {{ away_match.score|default:"-" }}
+                                {% else %}
+                                    Score not available
+                                {% endif %}
+                            {% endwith %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {% if match.status == 'Completed' %}bg-success{% elif match.status == 'In Progress' %}bg-warning{% elif match.status == 'Cancelled' %}bg-danger{% else %}bg-info{% endif %}">
+                            {{ match.status }}
+                        </span>
+                    </td>
                     <td>{{ match.season.year }}</td>
                     <td>
                         <a href="{% url 'league_management:match-update' match.pk %}" class="btn btn-sm btn-warning">Edit</a>
@@ -41,7 +60,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">No matches available.</td>
+                    <td colspan="7" class="text-center">No matches available.</td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Team, League, Player, Match, PlaysFor, TeamMatch 
+from .models import Division, Team, League, Player, Match, PlaysFor, TeamMatch 
 from django.utils import timezone
 
 class TeamForm(forms.ModelForm):
@@ -21,6 +21,16 @@ class LeagueForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'sport_type': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class DivisionForm(forms.ModelForm):
+    class Meta:
+        model = Division
+        fields = ['name', 'level', 'league']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'level': forms.TextInput(attrs={'class': 'form-control'}),
+            'league': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class PlayerForm(forms.ModelForm):
@@ -73,20 +83,71 @@ class MatchForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'}),
         label="Away Team"
     )
+    home_team_score = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        label="Home Team Score"
+    )
+    away_team_score = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        label="Away Team Score"
+    )
     
     class Meta:
         model = Match
-        fields = ['status', 'home_team', 'away_team']  # Update this list
+        fields = ['date', 'time', 'status', 'season', 'home_team', 'away_team', 'home_team_score', 'away_team_score']
         widgets = {
-            'status': forms.TextInput(attrs={'class': 'form-control'}),
+            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'status': forms.Select(attrs={'class': 'form-control'}),
+            'season': forms.Select(attrs={'class': 'form-control'}),
         }
 
     def clean(self):
         cleaned_data = super().clean()
         home_team = cleaned_data.get('home_team')
         away_team = cleaned_data.get('away_team')
+        status = cleaned_data.get('status')
+        home_team_score = cleaned_data.get('home_team_score')
+        away_team_score = cleaned_data.get('away_team_score')
         
         if home_team and away_team and home_team == away_team:
             raise forms.ValidationError("Home team and away team must be different.")
+        
+        if status == 'Completed':
+            if home_team_score is None or away_team_score is None:
+                raise forms.ValidationError("Scores must be provided for completed matches.")
             
         return cleaned_data
+
+    def save(self, commit=True):
+        match = super().save(commit=True)
+        
+        # Create or update TeamMatch instances
+        home_team = self.cleaned_data['home_team']
+        away_team = self.cleaned_data['away_team']
+        home_team_score = self.cleaned_data.get('home_team_score')
+        away_team_score = self.cleaned_data.get('away_team_score')
+        
+        # Update or create home team match
+        TeamMatch.objects.update_or_create(
+            match=match,
+            team=home_team,
+            defaults={
+                'is_home_team': True,
+                'score': home_team_score
+            }
+        )
+        
+        # Update or create away team match
+        TeamMatch.objects.update_or_create(
+            match=match,
+            team=away_team,
+            defaults={
+                'is_home_team': False,
+                'score': away_team_score
+            }
+        )
+        
+        return match
